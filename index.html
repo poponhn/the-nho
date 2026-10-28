@@ -152,19 +152,42 @@ nav.tabs button[aria-current="page"]{color:var(--accent);font-weight:600}
 .tprow:first-of-type{border-top:0}
 .tprow input{padding:8px 10px}
 .swatch{width:28px;height:28px;border-radius:8px;flex:none;border:0}
+/* lookup */
+.srch{position:relative}
+.srch input{padding-left:40px;font-size:16px;min-height:48px;border-radius:14px}
+.srch svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:20px;height:20px;color:var(--muted);pointer-events:none}
+.qbtn{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:0 14px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font-size:15px;text-align:left}
+.qbtn svg{width:20px;height:20px;flex:none}
+.res{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:8px}
+.res .hd{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.res .ft{font-weight:700;font-size:16px;line-height:1.35;overflow-wrap:anywhere}
+.res .bk{white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px;line-height:1.55}
+.res .nt{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12.5px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
+.res .act{display:flex;gap:8px;justify-content:flex-end}
+.badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--surface-2);color:var(--muted)}
+.badge.lib{background:var(--accent-soft);color:var(--accent)}
+.grp{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:6px 2px 0;display:flex;align-items:center;gap:6px}
+.citem{display:flex;gap:10px;align-items:center;padding:11px 0;border-top:1px solid var(--line);text-align:left;width:100%}
+.citem:first-child{border-top:0}
+.citem .t{font-weight:500;flex:1;min-width:0;overflow-wrap:anywhere}
+.citem svg{width:16px;height:16px;color:var(--muted);flex:none}
+.chk{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--ink);padding:2px 0}
+.chk input{width:20px;height:20px;flex:none;margin:1px 0 0;accent-color:var(--accent)}
+.chk span small{display:block;color:var(--muted);font-size:12.5px}
 </style>
 </head>
 <body>
 <main id="app" aria-live="polite"></main>
 <nav class="tabs" aria-label="Chuyển màn hình"><div class="in">
   <button data-act="tab" data-v="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="14" height="14" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v12"/></svg>Học</button>
-  <button data-act="tab" data-v="cards"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg>Thẻ</button>
+  <button data-act="tab" data-v="cards"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>Tra cứu</button>
   <button class="fab" data-act="add" aria-label="Thêm thẻ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <button data-act="tab" data-v="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Tiến độ</button>
   <button data-act="tab" data-v="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Cài đặt</button>
 </div></nav>
 <input type="file" id="restoreIn" accept=".json,.txt,application/json,text/plain" hidden>
 
+<script src="lib.js"></script>
 <script>
 'use strict';
 /* ---------- helpers ---------- */
@@ -178,6 +201,9 @@ const addDays=(s,n)=>{const [y,m,d]=s.split('-').map(Number);return dstr(new Dat
 const daysBetween=(a,b)=>{const p=s=>{const [y,m,d]=s.split('-').map(Number);return Date.UTC(y,m-1,d)};return Math.round((p(b)-p(a))/864e5)};
 const vnDate=s=>{const [y,m,d]=s.split('-');return `${d}/${m}`};
 const norm=s=>String(s||'').trim().toLowerCase().replace(/\s+/g,' ');
+// bỏ dấu tiếng Việt để gõ không dấu vẫn tìm được
+const fold=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'d').toLowerCase().replace(/[²³]/g,m=>m==='²'?'2':'3');
+const LIB=(window.THENHO_LIB||[]),LIBG=(window.THENHO_LIB_GROUPS||{});
 let toastT;function toast(m){let t=$('.toast');if(!t){t=document.createElement('div');t.className='toast';t.setAttribute('role','status');document.body.appendChild(t)}t.textContent=m;clearTimeout(toastT);toastT=setTimeout(()=>t.remove(),2600)}
 
 /* Lịch ôn theo hộp: hộp càng cao thì càng lâu mới hỏi lại (ngày) */
@@ -195,7 +221,7 @@ const IDB=(()=>{let p;
   const open=()=>p||(p=new Promise((res,rej)=>{const r=indexedDB.open('thenho',1);
     r.onupgradeneeded=()=>{const db=r.result;db.createObjectStore('cards',{keyPath:'id'});db.createObjectStore('meta')};
     r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}));
-  const tx=async(store,mode,fn)=>{const db=await open();return new Promise((res,rej)=>{const t=db.transaction(store,mode);const s=t.objectStore(store);const out=fn(s);t.oncomplete=()=>res(out&&out.result!==undefined?out.result:out);t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error)})};
+  const tx=async(store,mode,fn)=>{const db=await open();return new Promise((res,rej)=>{const t=db.transaction(store,mode);const s=t.objectStore(store);const out=fn(s);t.oncomplete=()=>res(out instanceof IDBRequest?out.result:out);t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error)})};
   return{
     all:s=>tx(s,'readonly',st=>st.getAll()),
     get:(s,k)=>tx(s,'readonly',st=>st.get(k)),
@@ -205,7 +231,7 @@ const IDB=(()=>{let p;
     clear:s=>tx(s,'readwrite',st=>st.clear())
   }})();
 
-const S={cards:[],settings:DEF_SETTINGS(),log:{},lastBackup:0,view:'home',topic:'all',q:'',listTopic:'all',ready:false,storeOk:true};
+const S={cards:[],settings:DEF_SETTINGS(),log:{},lastBackup:0,view:'home',topic:'all',q:'',listTopic:'all',scope:'all',open:{},ready:false,storeOk:true};
 const store={
   async load(){
     try{
@@ -226,8 +252,8 @@ const store={
 /* ---------- card logic ---------- */
 const topicOf=id=>S.settings.topics.find(t=>t.id===id)||{id:'khac',name:'Khác',color:'#5B6478'};
 const inTopic=(c,t)=>t==='all'||c.topic===t;
-const isNew=c=>!c.box;
-const isDue=(c,d=today())=>c.box>0&&c.due<=d;
+const isNew=c=>!c.box&&!c.ref;
+const isDue=(c,d=today())=>!c.ref&&c.box>0&&c.due<=d;
 function counts(t){
   const d=today(),cs=S.cards.filter(c=>inTopic(c,t));
   const due=cs.filter(c=>isDue(c,d)).length;
@@ -271,6 +297,7 @@ function viewHome(){
     <div class="card empty">
       <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="14" width="28" height="28" rx="4"/><path d="M14 8h24a4 4 0 0 1 4 4v24"/><path d="M14 26h12M14 33h8"/></svg>
       <h2>Chưa có thẻ nào</h2>
+      <button class="qbtn" data-act="goLookup" style="margin:4px 0">${icoSearch}Tra thư viện có sẵn (${LIB.length} mục)</button>
       <div class="sub">Mỗi thẻ gồm keyword, định nghĩa và ghi chú. Thêm từng thẻ, hoặc dán cả loạt theo dạng <span class="mono">keyword | định nghĩa | note</span>.</div>
       <div class="row" style="flex-wrap:wrap;justify-content:center"><button class="btn pri" data-act="add">Thêm thẻ đầu tiên</button><button class="btn" data-act="addBulk">Dán nhiều thẻ</button></div>
       <button class="sub" data-act="loadSample" style="text-decoration:underline">Xem thử với thẻ mẫu</button></div>`;
@@ -289,6 +316,7 @@ function viewHome(){
       <div class="sub">${tmN?`Ngày mai có ${tmN} thẻ cần ôn.`:'Ngày mai chưa có thẻ nào đến hạn.'}${k.newAll?` Còn ${k.newAll} thẻ mới chưa học.`:''}</div>
       ${k.newAll?`<button class="btn block" data-act="extra" style="margin-top:6px">Học thêm ${Math.min(5,k.newAll)} thẻ mới</button>`:''}</div>`}
   return `<div class="top"><h1>Thẻ nhớ</h1></div><div class="stack">
+    <button class="qbtn" data-act="goLookup">${icoSearch}Tra nhanh: hoạt tải, hành lang cáp…</button>
     ${S.settings.topics.length>1?topicChips(S.topic,'pickTopic',true):''}
     ${body}${sampleBanner()}${backupBanner()}
     <div class="card stack" style="gap:8px"><div class="row"><span class="grow" style="font-weight:600">Thêm thẻ nhanh</span></div>
@@ -296,26 +324,71 @@ function viewHome(){
   </div>`;
 }
 
+const icoSearch='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>';
+const icoChev='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+function libInfo(e){return LIBG[e.g]||{name:'Thư viện',color:'#5B6478'}}
+function inMine(libId){return S.cards.some(c=>c.libId===libId)}
+// điểm khớp: keyword > từ khóa tra > định nghĩa, note
+function score(q,toks,e,isLib){
+  const f=fold(e.front),b=fold(e.back),n=fold(e.note),tg=isLib?fold(e.tags):'';
+  const all=f+' '+b+' '+n+' '+tg;
+  if(!toks.every(t=>all.includes(t)))return 0;
+  let sc=1;if(f.includes(q))sc+=100;if(f.startsWith(q))sc+=30;
+  toks.forEach(t=>{if(f.includes(t))sc+=10;else if(tg.includes(t))sc+=6;else if(b.includes(t))sc+=3;else sc+=1});
+  if(isLib&&tg.includes(q))sc+=20;
+  return sc;
+}
+function resBlock(e,isLib){
+  let hd,act;
+  if(isLib){const g=libInfo(e);const have=inMine(e.id);
+    hd=`<span class="dot" style="background:${g.color}"></span>${esc(g.name)}<span class="grow"></span><span class="badge lib">Thư viện</span>`;
+    act=have?`<span class="sub">Đã có trong bộ thẻ của bạn</span>`:`<button class="btn sm" data-act="libAdd" data-id="${esc(e.id)}">Thêm vào ôn</button>`;
+  }else{const t=topicOf(e.topic);
+    hd=`<span class="dot" style="background:${t.color}"></span>${esc(t.name)}<span class="grow"></span>${e.ref?'<span class="badge">Chỉ tra cứu</span>':''}`;
+    act=`<button class="btn sm" data-act="edit" data-id="${esc(e.id)}">Sửa</button>`;
+  }
+  return `<div class="res"><div class="hd">${hd}</div><div class="ft">${esc(e.front)}</div><div class="bk">${esc(e.back)}</div>${e.note?`<div class="nt">${esc(e.note)}</div>`:''}<div class="act">${act}</div></div>`;
+}
+function compactItem(e,isLib){
+  const key=(isLib?'L:':'M:')+e.id;
+  if(S.open[key])return `<div style="margin:8px 0">${resBlock(e,isLib)}<button class="sub" data-act="toggle" data-k="${esc(key)}" style="margin-top:6px;text-decoration:underline">Thu gọn</button></div>`;
+  const col=isLib?libInfo(e).color:topicOf(e.topic).color;
+  return `<button class="citem" data-act="toggle" data-k="${esc(key)}"><span class="dot" style="background:${col}"></span><span class="t">${esc(e.front)}</span>${!isLib&&e.ref?'<span class="badge">tra cứu</span>':''}${icoChev}</button>`;
+}
+function lookupResults(){
+  const q=fold(S.q).trim().replace(/\s+/g,' '),toks=q?q.split(' '):[];
+  const useMine=S.scope!=='lib',useLib=S.scope!=='mine';
+  if(q){
+    let hits=[];
+    if(useMine)S.cards.forEach(c=>{const sc=score(q,toks,c,false);if(sc)hits.push([sc+5,c,false])});
+    if(useLib)LIB.forEach(e=>{const sc=score(q,toks,e,true);if(sc)hits.push([sc,e,true])});
+    hits.sort((x,y)=>y[0]-x[0]);
+    if(!hits.length)return `<div class="card empty"><div class="sub">Không tìm thấy “${esc(S.q)}”.<br>Thử từ khác ngắn hơn, hoặc gõ không dấu.</div></div>`;
+    const more=hits.length>40?`<div class="sub" style="text-align:center">Còn ${hits.length-40} kết quả nữa, gõ cụ thể hơn để lọc.</div>`:'';
+    return `<span class="sub">${hits.length} kết quả</span>`+hits.slice(0,40).map(h=>resBlock(h[1],h[2])).join('')+more;
+  }
+  let out='';
+  if(useLib){
+    const gs={};LIB.forEach(e=>(gs[e.g]=gs[e.g]||[]).push(e));
+    out+=Object.keys(gs).map(g=>`<div class="grp"><span class="dot" style="background:${libInfo({g}).color}"></span>${esc(libInfo({g}).name)} · ${gs[g].length}</div><div class="card" style="padding:2px 14px">${gs[g].map(e=>compactItem(e,true)).join('')}</div>`).join('');
+  }
+  if(useMine){
+    const list=S.cards.filter(c=>inTopic(c,S.listTopic)).sort((a,b)=>a.front.localeCompare(b.front,'vi'));
+    out+=`<div class="grp">Thẻ của tôi · ${S.cards.length}</div>`+(S.settings.topics.length>1&&S.cards.length?topicChips(S.listTopic,'listTopic',false):'')+
+      `<div class="card" style="padding:2px 14px">${list.length?list.map(c=>compactItem(c,false)).join(''):`<div class="empty"><div class="sub">${S.cards.length?'Chủ đề này chưa có thẻ.':'Chưa có thẻ nào. Bấm nút + để thêm.'}</div></div>`}</div>`;
+  }
+  return out;
+}
 function viewCards(){
-  const q=norm(S.q);
-  let list=S.cards.filter(c=>inTopic(c,S.listTopic));
-  if(q)list=list.filter(c=>norm(c.front+' '+c.back+' '+(c.note||'')).includes(q));
-  list.sort((a,b)=>a.front.localeCompare(b.front,'vi'));
-  const d=today();
-  const rows=list.map(c=>{const t=topicOf(c.topic);
-    const lv=Array.from({length:MAXBOX},(_,i)=>`<i class="${i<(c.box||0)?'on':''}"></i>`).join('');
-    const due=isNew(c)?'mới':c.due<=d?'đến hạn':`ôn ${vnDate(c.due)}`;
-    return `<button class="item" data-act="edit" data-id="${esc(c.id)}"><span class="dot" style="background:${t.color};margin-top:7px"></span>
-      <span class="grow"><span class="t">${esc(c.front)}</span><span class="n">${esc(c.back)}</span><span class="lv" aria-label="Hộp ${c.box||0}/${MAXBOX}">${lv}</span></span>
-      <span class="meta">${due}</span></button>`}).join('');
-  return `<div class="top"><h1>Bộ thẻ</h1><span class="sub num">${S.cards.length} thẻ</span></div><div class="stack">
-    <input type="search" id="q" placeholder="Tìm keyword, định nghĩa, ghi chú…" value="${esc(S.q)}" aria-label="Tìm thẻ">
-    ${topicChips(S.listTopic,'listTopic',false)}
-    <div class="card" style="padding:4px 14px">${rows||`<div class="empty"><div class="sub">${S.cards.length?'Không có thẻ nào khớp.':'Chưa có thẻ nào. Bấm nút + để thêm.'}</div></div>`}</div></div>`;
+  const sc=(v,l)=>`<button data-act="scope" data-v="${v}" aria-pressed="${S.scope===v}">${l}</button>`;
+  return `<div class="top"><h1>Tra cứu</h1><span class="sub num">${S.cards.length} thẻ · ${LIB.length} mục thư viện</span></div><div class="stack">
+    <label class="srch">${icoSearch}<input type="search" id="q" placeholder="Gõ có dấu hay không dấu đều được" value="${esc(S.q)}" aria-label="Tra cứu" autocomplete="off" enterkeyhint="search"></label>
+    <div class="seg" role="group" style="grid-template-columns:1fr 1fr 1fr">${sc('all','Tất cả')}${sc('mine','Thẻ của tôi')}${sc('lib','Thư viện')}</div>
+    <div id="results" class="stack">${lookupResults()}</div></div>`;
 }
 
 function viewStats(){
-  const cs=S.cards,tot=cs.length;
+  const cs=S.cards.filter(c=>!c.ref),tot=cs.length,nref=S.cards.length-tot;
   const nw=cs.filter(isNew).length,lr=cs.filter(c=>c.box>=1&&c.box<=3).length,ms=cs.filter(c=>c.box>=4).length;
   const boxes=[0,1,2,3,4,5,6].map(b=>cs.filter(c=>(c.box||0)===b).length),mx=Math.max(...boxes,1);
   const bl=['Chưa học','Hộp 1 · 1 ngày','Hộp 2 · 3 ngày','Hộp 3 · 7 ngày','Hộp 4 · 14 ngày','Hộp 5 · 30 ngày','Hộp 6 · 60 ngày'];
@@ -330,7 +403,7 @@ function viewStats(){
     return a.length?`<div class="bar"><span class="sub" style="display:flex;gap:6px;align-items:center;overflow:hidden"><span class="dot" style="background:${t.color}"></span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(t.name)}</span></span><span class="tr"><i style="width:${(m/a.length*100).toFixed(1)}%;background:${t.color}"></i></span><span class="num sub" style="text-align:right">${m}/${a.length}</span></div>`:''}).join('');
   return `<div class="top"><h1>Tiến độ</h1>${streak()?`<span class="streak">${flame}${streak()} ngày</span>`:''}</div><div class="stack">
     <div class="stat3"><div><span class="sub">Chưa học</span><b class="num">${nw}</b></div><div><span class="sub">Đang học</span><b class="num">${lr}</b></div><div><span class="sub">Đã thuộc</span><b class="num">${ms}</b></div></div>
-    <div class="card stack"><h2>Thẻ theo hộp</h2><span class="sub">Nhớ thì thẻ lên hộp trên, quên thì về hộp 1. Từ hộp 4 trở lên coi như đã thuộc.</span><div class="bars">${bars}</div></div>
+    <div class="card stack"><h2>Thẻ theo hộp</h2><span class="sub">Nhớ thì thẻ lên hộp trên, quên thì về hộp 1. Từ hộp 4 trở lên coi như đã thuộc.${nref?` Không tính ${nref} thẻ chỉ tra cứu.`:''}</span><div class="bars">${bars}</div></div>
     <div class="card stack"><h2>5 tuần gần nhất</h2>
       <div class="heat" aria-label="Số thẻ ôn mỗi ngày">${'T2 T3 T4 T5 T6 T7 CN'.split(' ').map(x=>`<span class="sub" style="text-align:center;font-size:11px">${x}</span>`).join('')}${heat}</div>
       <span class="sub">Đã ôn ${days} ngày, tổng ${allN} lượt.</span></div>
@@ -364,7 +437,7 @@ function viewSettings(){
     <div class="card stack"><h2>Xóa dữ liệu</h2>
       <span class="sub">Xóa toàn bộ thẻ và lịch sử ôn trên máy này. Nên sao lưu trước.</span>
       <button class="btn danger" data-act="wipe">Xóa tất cả</button></div>
-    <span class="sub" style="text-align:center">Thẻ nhớ · chạy offline · bản 1.0</span>
+    <span class="sub" style="text-align:center">Thẻ nhớ · chạy offline · bản 1.1 · thư viện ${window.THENHO_LIB_VERSION||''}</span>
   </div>`;
 }
 
@@ -374,7 +447,8 @@ function render(){
   $('#app').innerHTML=!S.storeOk?`<div class="card stack"><h2>Không mở được bộ nhớ</h2><span class="sub">Trình duyệt đang chặn lưu dữ liệu (có thể do chế độ ẩn danh). Mở app bằng tab thường của Samsung Internet hoặc Chrome nhé.</span></div>`
     :v==='cards'?viewCards():v==='stats'?viewStats():v==='settings'?viewSettings():viewHome();
   document.querySelectorAll('nav.tabs [data-v]').forEach(b=>b.setAttribute('aria-current',b.dataset.v===v?'page':'false'));
-  if(v==='cards'){const q=$('#q');q.oninput=()=>{S.q=q.value;const pos=q.selectionStart;render();const n=$('#q');n.focus();try{n.setSelectionRange(pos,pos)}catch(e){}}}
+  if(v==='cards'){const q=$('#q');q.oninput=()=>{S.q=q.value;S.open={};$('#results').innerHTML=lookupResults()};
+    q.onkeydown=e=>{if(e.key==='Enter')q.blur()}}
   if(v==='settings')bindSettings();
 }
 function bindSettings(){
@@ -395,7 +469,7 @@ function openSheet(card,mode){
   const lastT=S.settings.lastTopic&&S.settings.topics.some(t=>t.id===S.settings.lastTopic)?S.settings.lastTopic:(S.topic!=='all'?S.topic:S.settings.topics[0].id);
   const c=card||{front:'',back:'',note:'',topic:lastT};
   const sc=document.createElement('div');sc.className='scrim';sc.id='sheet';
-  const st=card?(isNew(card)?'Thẻ mới, chưa ôn lần nào.':`Đang ở hộp ${card.box}/${MAXBOX} · ôn lại ${card.due<=today()?'hôm nay':'ngày '+vnDate(card.due)} · đã ôn ${card.reviews||0} lần, quên ${card.lapses||0} lần.`):'';
+  const st=card?(card.ref?'Thẻ chỉ tra cứu, không nằm trong lịch ôn.':isNew(card)?'Thẻ mới, chưa ôn lần nào.':`Đang ở hộp ${card.box}/${MAXBOX} · ôn lại ${card.due<=today()?'hôm nay':'ngày '+vnDate(card.due)} · đã ôn ${card.reviews||0} lần, quên ${card.lapses||0} lần.`):'';
   sc.innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="shT"><div class="grab"></div>
     <div class="row"><h2 id="shT" class="grow">${card?'Sửa thẻ':'Thêm thẻ'}</h2><button class="btn sm" data-act="close">Đóng</button></div>
     ${card?'':`<div class="seg" role="group"><button data-act="mode" data-v="one" aria-pressed="${E.mode==='one'}">Một thẻ</button><button data-act="mode" data-v="bulk" aria-pressed="${E.mode==='bulk'}">Dán nhiều thẻ</button></div>`}
@@ -404,16 +478,18 @@ function openSheet(card,mode){
       <label class="field"><b>Định nghĩa</b><textarea id="fB" rows="4">${esc(c.back)}</textarea></label>
       <label class="field"><b>Ghi chú</b><textarea id="fN" rows="2" placeholder="Không bắt buộc: nguồn, ví dụ, mẹo nhớ…" style="min-height:60px">${esc(c.note||'')}</textarea></label>
       <label class="field"><b>Chủ đề</b>${topicSelect('fT',c.topic)}</label>
+      <label class="chk"><input type="checkbox" id="fR" ${c.ref?'checked':''}><span>Chỉ tra cứu, không đưa vào ôn<small>Hợp với con số, bảng tra cần đúng lúc dùng hơn là học thuộc.</small></span></label>
       <div class="err" id="fErr"></div>
       ${card?`<span class="sub">${st}</span>
         <button class="btn pri big block" data-act="saveOne">Lưu thay đổi</button>
-        <div class="two"><button class="btn" data-act="resetCard">Học lại từ đầu</button><button class="btn danger" data-act="delCard">Xóa thẻ</button></div>`
+        <div class="two"><button class="btn" data-act="resetCard">${card.ref?'Đưa vào ôn':'Học lại từ đầu'}</button><button class="btn danger" data-act="delCard">Xóa thẻ</button></div>`
       :`<div class="two"><button class="btn" data-act="saveOne" data-more="1">Lưu & thêm tiếp</button><button class="btn pri" data-act="saveOne">Lưu</button></div>`}
     </div>
     ${card?'':`<div id="mBulk" class="stack" ${E.mode==='bulk'?'':'hidden'}>
       <div class="hint">Mỗi dòng một thẻ: <code>keyword | định nghĩa | note</code>. Phần note không bắt buộc. Dòng nào không có dấu <code>|</code> sẽ được nối vào thẻ ngay trên. Dán từ Excel (cột cách bằng Tab) cũng được.</div>
       <textarea id="bT" rows="8" placeholder="Scour | Xói lở đáy quanh chân công trình do dòng chảy | Cần bảo vệ bằng đá đổ&#10;Battery limit | Ranh giới phạm vi trách nhiệm giữa các bên" style="min-height:180px;font-size:14px"></textarea>
       <label class="field"><b>Chủ đề cho cả loạt</b>${topicSelect('bTp',c.topic)}<span>Muốn từng thẻ một chủ đề thì thêm cột thứ 4: <span class="mono">… | note | Pháp lý</span></span></label>
+      <label class="chk"><input type="checkbox" id="bR"><span>Cả loạt chỉ tra cứu, không đưa vào ôn</span></label>
       <div id="bInfo" class="sub"></div>
       <button class="btn pri big block" data-act="saveBulk" id="bGo" disabled>Thêm thẻ</button>
     </div>`}
@@ -425,15 +501,15 @@ function openSheet(card,mode){
 }
 function closeSheet(){const s=$('#sheet');if(s)s.remove();E=null}
 
-function makeCard(o){return{id:uid(),front:o.front,back:o.back,note:o.note||'',topic:o.topic,box:0,due:'',created:Date.now(),reviews:0,lapses:0}}
+function makeCard(o){const c={id:uid(),front:o.front,back:o.back,note:o.note||'',topic:o.topic,box:0,due:'',created:Date.now(),reviews:0,lapses:0};if(o.ref)c.ref=true;if(o.libId)c.libId=o.libId;return c}
 async function saveOne(more){
-  const f=$('#fF').value.trim(),b=$('#fB').value.trim(),n=$('#fN').value.trim(),t=$('#fT').value;
+  const f=$('#fF').value.trim(),b=$('#fB').value.trim(),n=$('#fN').value.trim(),t=$('#fT').value,ref=$('#fR').checked;
   if(!f){$('#fErr').textContent='Nhập keyword đã nhé.';$('#fF').focus();return}
   if(!b){$('#fErr').textContent='Nhập định nghĩa đã nhé.';$('#fB').focus();return}
-  if(E.orig){const c=Object.assign({},E.orig,{front:f,back:b,note:n,topic:t});await store.putCard(c);closeSheet();toast('Đã lưu thẻ');render();return}
+  if(E.orig){const c=Object.assign({},E.orig,{front:f,back:b,note:n,topic:t});if(ref)c.ref=true;else delete c.ref;await store.putCard(c);closeSheet();toast('Đã lưu thẻ');render();return}
   const dup=S.cards.find(c=>c.topic===t&&norm(c.front)===norm(f));
   if(dup&&!E.dupOk){$('#fErr').textContent='Chủ đề này đã có thẻ cùng keyword. Bấm lưu lần nữa nếu vẫn muốn thêm.';E.dupOk=true;return}
-  await store.putCard(makeCard({front:f,back:b,note:n,topic:t}));
+  await store.putCard(makeCard({front:f,back:b,note:n,topic:t,ref}));
   S.settings.lastTopic=t;store.saveSettings();
   if(more){$('#fF').value='';$('#fB').value='';$('#fN').value='';$('#fErr').textContent='';E.dupOk=false;$('#fF').focus();toast(`Đã lưu · tổng ${S.cards.length} thẻ`);render()}
   else{closeSheet();toast('Đã lưu thẻ');render()}
@@ -481,7 +557,8 @@ async function saveBulk(){
   const r=E.parsed;if(!r||!r.cards.length)return;
   const map={};
   r.newTopics.forEach(name=>{const t={id:uid(),name,color:PALETTE[S.settings.topics.length%PALETTE.length]};S.settings.topics.push(t);map['new:'+norm(name)]=t.id});
-  const arr=r.cards.map(c=>makeCard({front:c.front,back:c.back,note:c.note,topic:map[c.topic]||c.topic}));
+  const ref=$('#bR').checked;
+  const arr=r.cards.map(c=>makeCard({front:c.front,back:c.back,note:c.note,topic:map[c.topic]||c.topic,ref}));
   S.settings.lastTopic=$('#bTp').value;store.saveSettings();
   await store.putCards(arr);closeSheet();toast(`Đã thêm ${arr.length} thẻ`);render();
 }
@@ -674,9 +751,17 @@ document.addEventListener('click',async e=>{
   if(a==='edit'){const c=S.cards.find(x=>x.id===el.dataset.id);if(c)openSheet(c);return}
   if(a==='delCard'){if(!E.arm){E.arm=true;el.classList.add('armed');el.textContent='Bấm lần nữa để xóa';setTimeout(()=>{if(E&&E.arm){E.arm=false;el.classList.remove('armed');el.textContent='Xóa thẻ'}},3000);return}
     const id=E.orig.id;closeSheet();await store.delCard(id);toast('Đã xóa thẻ');render();return}
-  if(a==='resetCard'){const c=Object.assign({},E.orig,{box:0,due:''});await store.putCard(c);closeSheet();toast('Thẻ sẽ học lại như thẻ mới');render();return}
+  if(a==='resetCard'){const c=Object.assign({},E.orig,{box:0,due:''});delete c.ref;await store.putCard(c);closeSheet();toast('Thẻ sẽ được ôn như thẻ mới');render();return}
   if(a==='pickTopic'){S.topic=el.dataset.v;render();return}
-  if(a==='listTopic'){S.listTopic=el.dataset.v;render();return}
+  if(a==='goLookup'){S.view='cards';window.scrollTo(0,0);render();const q=$('#q');q&&q.focus();return}
+  if(a==='scope'){S.scope=el.dataset.v;S.open={};render();return}
+  if(a==='toggle'){const k=el.dataset.k;if(S.open[k])delete S.open[k];else S.open[k]=1;$('#results').innerHTML=lookupResults();return}
+  if(a==='libAdd'){const e=LIB.find(x=>x.id===el.dataset.id);if(!e||inMine(e.id))return;
+    let t=S.settings.topics.find(x=>norm(x.name)===norm(libInfo(e).name));
+    if(!t){t={id:uid(),name:libInfo(e).name,color:libInfo(e).color};S.settings.topics.push(t);store.saveSettings()}
+    await store.putCard(makeCard({front:e.front,back:e.back,note:e.note,topic:t.id,libId:e.id}));
+    toast('Đã thêm vào bộ thẻ, sẽ có trong lịch ôn');$('#results').innerHTML=lookupResults();return}
+  if(a==='listTopic'){S.listTopic=el.dataset.v;$('#results').innerHTML=lookupResults();return}
   if(a==='start'){startSession(0);return}
   if(a==='extra'){startSession(5);return}
   if(a==='flip'){if(R){R.flipped=true;paintReview()}return}
