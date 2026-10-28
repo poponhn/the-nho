@@ -231,23 +231,80 @@ const IDB=(()=>{let p;
     clear:s=>tx(s,'readwrite',st=>st.clear())
   }})();
 
-const S={cards:[],settings:DEF_SETTINGS(),log:{},lastBackup:0,view:'home',topic:'all',q:'',listTopic:'all',scope:'all',open:{},ready:false,storeOk:true};
+/* Đồng bộ (Firebase): cấu hình của dự án Firebase riêng của chủ app. Cấu hình này không phải mật khẩu;
+   quyền đọc/ghi do luật bảo mật trên Firestore quyết định. Bạn bè dùng app không bật đồng bộ thì không tải gì. */
+const FB_CONFIG={apiKey:"AIzaSyAAFtiMv4bTOdwUXqAMGKHp17Fm4fgFi2c",authDomain:"the-nho.firebaseapp.com",projectId:"the-nho",
+  storageBucket:"the-nho.firebasestorage.app",messagingSenderId:"565109594405",appId:"1:565109594405:web:b1befedced88902d9122cc"};
+const S={tombs:[],mupd:0,sync:{on:false,state:'off',email:'',last:0},cards:[],settings:DEF_SETTINGS(),log:{},lastBackup:0,view:'home',topic:'all',q:'',listTopic:'all',scope:'all',open:{},ready:false,storeOk:true};
 const store={
   async load(){
     try{
-      S.cards=await IDB.all('cards');
+      const all=await IDB.all('cards');S.cards=all.filter(c=>!c.del);S.tombs=all.filter(c=>c.del);
       const st=await IDB.get('meta','settings');if(st)S.settings=Object.assign(DEF_SETTINGS(),st);
       S.log=(await IDB.get('meta','log'))||{};
       S.lastBackup=(await IDB.get('meta','lastBackup'))||0;
+      S.mupd=(await IDB.get('meta','mupd'))||0;
+      S.sync.on=!!(await IDB.get('meta','syncOn'));
     }catch(e){S.storeOk=false}
     S.ready=true;
   },
-  async putCard(c){const i=S.cards.findIndex(x=>x.id===c.id);if(i<0)S.cards.push(c);else S.cards[i]=c;try{await IDB.put('cards',c)}catch(e){toast('Không lưu được vào máy')}},
-  async putCards(arr){arr.forEach(c=>{const i=S.cards.findIndex(x=>x.id===c.id);if(i<0)S.cards.push(c);else S.cards[i]=c});try{await IDB.putMany('cards',arr)}catch(e){toast('Không lưu được vào máy')}},
-  async delCard(id){S.cards=S.cards.filter(x=>x.id!==id);try{await IDB.del('cards',id)}catch(e){}},
-  saveSettings(){IDB.put('meta',S.settings,'settings').catch(()=>{})},
-  saveLog(){IDB.put('meta',S.log,'log').catch(()=>{})}
+  // mỗi lần sửa thẻ ghi lại thời điểm sửa (upd) để khi đồng bộ, bản sửa sau thắng
+  async putCard(c){c.upd=Date.now();const i=S.cards.findIndex(x=>x.id===c.id);if(i<0)S.cards.push(c);else S.cards[i]=c;S.tombs=S.tombs.filter(t=>t.id!==c.id);
+    try{await IDB.put('cards',c)}catch(e){toast('Không lưu được vào máy')}syncPush(c)},
+  async putCards(arr){const now=Date.now();arr.forEach((c,k)=>{c.upd=now+k;const i=S.cards.findIndex(x=>x.id===c.id);if(i<0)S.cards.push(c);else S.cards[i]=c});
+    try{await IDB.putMany('cards',arr)}catch(e){toast('Không lưu được vào máy')}syncPushMany(arr)},
+  async delCard(id){S.cards=S.cards.filter(x=>x.id!==id);const t={id,del:true,upd:Date.now()};S.tombs.push(t);try{await IDB.put('cards',t)}catch(e){}syncPush(t)},
+  saveSettings(){IDB.put('meta',S.settings,'settings').catch(()=>{});touchMeta()},
+  saveLog(){IDB.put('meta',S.log,'log').catch(()=>{});touchMeta()}
 };
+
+/* ---------- đồng bộ ---------- */
+const SY=()=>S.sync.on&&window.TheNhoSync&&window.TheNhoSync.active;
+function syncPush(c){if(SY())window.TheNhoSync.pushCard(c)}
+function syncPushMany(a){if(SY()&&a.length)window.TheNhoSync.pushCards(a)}
+let metaT;function touchMeta(){S.mupd=Date.now();IDB.put('meta',S.mupd,'mupd').catch(()=>{});if(!SY())return;clearTimeout(metaT);metaT=setTimeout(()=>window.TheNhoSync.pushMeta(metaObj()),800)}
+const metaObj=()=>({settings:S.settings,log:S.log,upd:S.mupd});
+let softT;function softRender(){clearTimeout(softT);softT=setTimeout(()=>{if($('#sheet')||$('#rv'))return;if(S.view==='cards'&&$('#results')){$('#results').innerHTML=lookupResults()}else render()},250)}
+function remoteCard(d){
+  const loc=S.cards.find(x=>x.id===d.id)||S.tombs.find(x=>x.id===d.id);
+  if(loc&&(loc.upd||0)>=(d.upd||0))return;
+  if(d.del){S.cards=S.cards.filter(x=>x.id!==d.id);S.tombs=S.tombs.filter(x=>x.id!==d.id).concat([d])}
+  else{S.tombs=S.tombs.filter(x=>x.id!==d.id);const i=S.cards.findIndex(x=>x.id===d.id);if(i<0)S.cards.push(d);else S.cards[i]=d;
+    if(d.topic&&!S.settings.topics.some(t=>t.id===d.topic))S.settings.topics.push({id:d.topic,name:'Chủ đề đồng bộ',color:'#5B6478'})}
+  IDB.put('cards',d).catch(()=>{});softRender();
+}
+// gộp lịch sử ôn theo ngày (lấy số lớn hơn), cài đặt thì bên sửa sau thắng; trả về bản cần đẩy lên nếu có khác
+function remoteMeta(m){
+  let changed=false,needPush=!m;
+  if(m){
+    const L=Object.assign({},S.log);
+    Object.entries(m.log||{}).forEach(([k,v])=>{const a=L[k];if(!a||(a.n||0)<(v.n||0)||((a.n||0)===(v.n||0)&&(a.new||0)<(v.new||0))){L[k]=v;changed=true}});
+    Object.entries(S.log).forEach(([k,v])=>{const r=(m.log||{})[k];if(!r||(r.n||0)<(v.n||0))needPush=true});
+    S.log=L;
+    if((m.upd||0)>(S.mupd||0)&&m.settings){S.settings=Object.assign(DEF_SETTINGS(),m.settings);S.mupd=m.upd;changed=true;IDB.put('meta',S.mupd,'mupd').catch(()=>{})}
+    else if((S.mupd||0)>(m.upd||0))needPush=true;
+    if(changed){IDB.put('meta',S.log,'log').catch(()=>{});IDB.put('meta',S.settings,'settings').catch(()=>{});softRender()}
+  }
+  if(needPush){if(!S.mupd)S.mupd=Date.now();return metaObj()}
+  return null;
+}
+function loadScript(src){return new Promise((res,rej)=>{const sc=document.createElement('script');sc.src=src;sc.onload=res;sc.onerror=rej;document.head.appendChild(sc)})}
+async function startSync(){
+  if(!FB_CONFIG)return false;
+  try{if(!window.TheNhoSync)await loadScript('sync.js')}catch(e){S.sync.state='offline';render();return false}
+  await window.TheNhoSync.start(FB_CONFIG,{
+    allCards:()=>S.cards.concat(S.tombs),remoteCard,remoteMeta,
+    onStatus:(st,x)=>{S.sync.state=st;S.sync.email=(x&&x.user&&x.user.email)||'';if(st==='synced')S.sync.last=Date.now();
+      if(S.view==='settings'&&!$('#sheet'))render();paintSyncDot()}
+  });
+  return true;
+}
+function paintSyncDot(){const el=$('#syncDot');if(el)el.outerHTML=syncDot()}
+function syncDot(){
+  if(!S.sync.on)return '<span id="syncDot"></span>';
+  const m={synced:['var(--ok)','Đã đồng bộ'],syncing:['var(--mid)','Đang đồng bộ…'],signedout:['var(--muted)','Chưa đăng nhập'],denied:['var(--danger)','Không có quyền'],error:['var(--danger)','Lỗi đồng bộ'],offline:['var(--muted)','Ngoại tuyến'],off:['var(--muted)','Đang khởi động…']}[S.sync.state]||['var(--muted)',''];
+  return `<button id="syncDot" class="sub" data-act="tab" data-v="settings" style="display:inline-flex;align-items:center;gap:6px"><span class="dot" style="background:${m[0]}"></span>${m[1]}</button>`;
+}
 
 /* ---------- card logic ---------- */
 const topicOf=id=>S.settings.topics.find(t=>t.id===id)||{id:'khac',name:'Khác',color:'#5B6478'};
@@ -315,7 +372,7 @@ function viewHome(){
       <h2 style="font-size:22px">${tdn?'Xong bài hôm nay rồi':'Chưa có thẻ nào đến hạn'}</h2>
       <div class="sub">${tmN?`Ngày mai có ${tmN} thẻ cần ôn.`:'Ngày mai chưa có thẻ nào đến hạn.'}${k.newAll?` Còn ${k.newAll} thẻ mới chưa học.`:''}</div>
       ${k.newAll?`<button class="btn block" data-act="extra" style="margin-top:6px">Học thêm ${Math.min(5,k.newAll)} thẻ mới</button>`:''}</div>`}
-  return `<div class="top"><h1>Thẻ nhớ</h1></div><div class="stack">
+  return `<div class="top"><h1>Thẻ nhớ</h1>${syncDot()}</div><div class="stack">
     <button class="qbtn" data-act="goLookup">${icoSearch}Tra nhanh: hoạt tải, hành lang cáp…</button>
     ${S.settings.topics.length>1?topicChips(S.topic,'pickTopic',true):''}
     ${body}${sampleBanner()}${backupBanner()}
@@ -411,6 +468,21 @@ function viewStats(){
   </div>`;
 }
 
+function syncCard(){
+  if(!FB_CONFIG)return '';
+  const st=S.sync.state,on=S.sync.on;
+  let body;
+  if(!on)body=`<span class="sub">Đăng nhập Google để thẻ và tiến độ ôn tự khớp giữa máy tính và điện thoại. Mất mạng vẫn dùng bình thường, có mạng lại app tự đẩy lên.</span>
+    <button class="btn pri" data-act="syncOn">Bật đồng bộ</button>`;
+  else if(st==='denied')body=`<span class="err">Tài khoản ${esc(S.sync.email)} không được phép đồng bộ. Đăng xuất rồi chọn đúng tài khoản Google của bạn.</span>
+    <button class="btn" data-act="syncOff">Đăng xuất</button>`;
+  else if(st==='signedout')body=`<span class="sub">Đồng bộ đang bật nhưng chưa đăng nhập.</span>
+    <div class="two"><button class="btn pri" data-act="syncLogin">Đăng nhập Google</button><button class="btn" data-act="syncOff">Tắt đồng bộ</button></div>`;
+  else body=`<span class="sub">${st==='synced'?`Đã đồng bộ${S.sync.last?' lúc '+new Date(S.sync.last).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}):''}`:st==='error'?'<span class="err">Có lỗi khi đồng bộ, app sẽ thử lại khi có mạng.</span>':st==='offline'?'Đang ngoại tuyến, có mạng lại sẽ tự đồng bộ.':'Đang đồng bộ…'}${S.sync.email?` · ${esc(S.sync.email)}`:''}</span>
+    <div class="two"><button class="btn" data-act="syncNow">Đồng bộ ngay</button><button class="btn" data-act="syncOff">Tắt trên máy này</button></div>
+    <span class="sub">Tắt đồng bộ thì thẻ vẫn nằm nguyên trong máy, chỉ thôi không khớp với máy khác.</span>`;
+  return `<div class="card stack"><h2>Đồng bộ giữa các máy</h2>${body}</div>`;
+}
 function viewSettings(){
   const s=S.settings;
   const lb=S.lastBackup?`Lần sao lưu gần nhất: ${new Date(S.lastBackup).toLocaleDateString('vi-VN')}.`:'Bạn chưa sao lưu lần nào.';
@@ -427,6 +499,7 @@ function viewSettings(){
     </div>
     <div class="card stack"><h2>Chủ đề</h2><div>${tps}</div>
       <div class="row"><input id="newTopic" placeholder="Tên chủ đề mới" aria-label="Tên chủ đề mới"><button class="btn" data-act="addTopic">Thêm</button></div></div>
+    ${syncCard()}
     <div class="card stack"><h2>Sao lưu</h2>
       <span class="sub">Dữ liệu chỉ nằm trong máy này, không cần mạng. Gỡ app hoặc xóa dữ liệu trình duyệt là mất, nên thỉnh thoảng sao lưu. ${lb}</span>
       <div class="two"><button class="btn pri" data-act="backup">Sao lưu</button><button class="btn" data-act="restore">Khôi phục</button></div>
@@ -435,9 +508,9 @@ function viewSettings(){
       <span class="sub">Xuất toàn bộ thẻ ra file văn bản dạng <span class="mono">keyword | định nghĩa | note | chủ đề</span>, để in ra đọc hoặc gửi sang máy khác.</span>
       <button class="btn" data-act="exportTxt">Xuất file văn bản</button></div>
     <div class="card stack"><h2>Xóa dữ liệu</h2>
-      <span class="sub">Xóa toàn bộ thẻ và lịch sử ôn trên máy này. Nên sao lưu trước.</span>
+      <span class="sub">${S.sync.on?'Xóa toàn bộ thẻ trên máy này và cả các máy đang đồng bộ.':'Xóa toàn bộ thẻ trên máy này.'} Nên sao lưu trước.</span>
       <button class="btn danger" data-act="wipe">Xóa tất cả</button></div>
-    <span class="sub" style="text-align:center">Thẻ nhớ · chạy offline · bản 1.1 · thư viện ${window.THENHO_LIB_VERSION||''}</span>
+    <span class="sub" style="text-align:center">Thẻ nhớ · chạy offline · bản 1.2 · thư viện ${window.THENHO_LIB_VERSION||''}</span>
   </div>`;
 }
 
@@ -721,7 +794,7 @@ async function restore(file){
     if(!m){m={id:t.id,name:t.name,color:t.color||PALETTE[S.settings.topics.length%PALETTE.length]};S.settings.topics.push(m)}
     tmap[t.id]=m.id});
   const have=new Set(S.cards.map(c=>c.id));
-  const arr=d.cards.filter(c=>c&&c.id&&!have.has(c.id)&&c.front).map(c=>Object.assign({},c,{topic:tmap[c.topic]||(S.settings.topics.some(t=>t.id===c.topic)?c.topic:'khac')}));
+  const arr=d.cards.filter(c=>c&&c.id&&!c.del&&!have.has(c.id)&&c.front).map(c=>Object.assign({},c,{topic:tmap[c.topic]||(S.settings.topics.some(t=>t.id===c.topic)?c.topic:'khac')}));
   if(!S.settings.topics.some(t=>t.id==='khac')&&arr.some(c=>c.topic==='khac'))S.settings.topics.push({id:'khac',name:'Khác',color:'#5B6478'});
   Object.entries(d.log||{}).forEach(([k,v])=>{const L=S.log[k];if(!L||(L.n||0)<(v.n||0))S.log[k]=v});
   store.saveSettings();store.saveLog();
@@ -782,9 +855,15 @@ document.addEventListener('click',async e=>{
     if(el.dataset.armed!=='1'){el.dataset.armed='1';el.classList.add('armed');el.textContent='Chắc chưa?';setTimeout(()=>{el.dataset.armed='';el.classList.remove('armed');el.textContent='Xóa'},3000);return}
     S.settings.topics=S.settings.topics.filter(t=>t.id!==id);if(S.topic===id)S.topic='all';if(S.listTopic===id)S.listTopic='all';store.saveSettings();render();return}
   if(a==='recolor'){const t=S.settings.topics.find(x=>x.id===el.dataset.id);const i=PALETTE.indexOf(t.color);t.color=PALETTE[(i+1)%PALETTE.length];store.saveSettings();render();return}
+  if(a==='syncOn'){S.sync.on=true;IDB.put('meta',true,'syncOn').catch(()=>{});S.sync.state='off';render();
+    if(await startSync())window.TheNhoSync.signIn();return}
+  if(a==='syncLogin'){if(window.TheNhoSync)window.TheNhoSync.signIn();return}
+  if(a==='syncNow'){if(window.TheNhoSync){window.TheNhoSync.resync();toast('Đang đồng bộ…')}return}
+  if(a==='syncOff'){S.sync.on=false;IDB.put('meta',false,'syncOn').catch(()=>{});try{window.TheNhoSync&&await window.TheNhoSync.signOut()}catch(e){}S.sync.state='off';render();toast('Đã tắt đồng bộ trên máy này');return}
   if(a==='wipe'){if(el.dataset.armed!=='1'){el.dataset.armed='1';el.classList.add('armed');el.textContent='Bấm lần nữa để xóa hết';setTimeout(()=>{if(el.isConnected){el.dataset.armed='';el.classList.remove('armed');el.textContent='Xóa tất cả'}},3000);return}
-    try{await IDB.clear('cards');await IDB.put('meta',{},'log')}catch(err){}
-    S.cards=[];S.log={};toast('Đã xóa toàn bộ thẻ');render();return}
+    const now=Date.now(),tombs=S.cards.map((c,k)=>({id:c.id,del:true,upd:now+k}));
+    try{await IDB.putMany('cards',tombs)}catch(err){}
+    S.cards=[];S.tombs=S.tombs.concat(tombs);syncPushMany(tombs);toast(S.sync.on?'Đã xóa toàn bộ thẻ trên mọi máy đồng bộ':'Đã xóa toàn bộ thẻ');render();return}
 });
 $('#restoreIn').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(f)restore(f)});
 document.addEventListener('keydown',e=>{
@@ -799,6 +878,8 @@ window.addEventListener('popstate',()=>{if($('#rv'))endReview();else if($('#shee
 /* ---------- start ---------- */
 (async()=>{
   await store.load();
+  if(S.sync.on)startSync();
+  window.addEventListener('online',()=>{if(SY())window.TheNhoSync.resync()});
   if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
   const p=new URLSearchParams(location.search);
   render();

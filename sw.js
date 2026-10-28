@@ -1,4 +1,4 @@
-const VERSION = 'thenho-v2';
+const VERSION = 'thenho-v3';
 const CORE = ['./', './index.html', './manifest.webmanifest', './lib.js',
   './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png'];
 
