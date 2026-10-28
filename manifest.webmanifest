@@ -1,0 +1,21 @@
+{
+  "name": "Thẻ nhớ",
+  "short_name": "Thẻ nhớ",
+  "description": "Ôn thuật ngữ và định nghĩa mỗi ngày bằng thẻ ghi nhớ, chạy offline",
+  "lang": "vi",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F3F4F8",
+  "theme_color": "#3348A8",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Ôn bài hôm nay", "short_name": "Ôn bài", "url": "./?learn=1", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
+    { "name": "Thêm thẻ", "short_name": "Thêm thẻ", "url": "./?add=1", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] }
+  ]
+}
